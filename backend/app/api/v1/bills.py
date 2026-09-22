@@ -97,20 +97,19 @@ def get_bill(bill_id: str) -> Dict[str, Any]:
 
 
 @router.get("/{bill_id}/file")
-def get_bill_file(bill_id: str) -> FileResponse:
+def get_bill_file(bill_id: str):
+    from fastapi.responses import RedirectResponse
+    from app.repositories.s3_repo import S3Repository
     repo = get_db()
     item = repo.get_item({"company_id": "mock_company", "bill_id": bill_id})
     if not item or "s3_key" not in item:
         raise HTTPException(status_code=404, detail="Bill file not found")
 
     s3_key = item["s3_key"]
-    temp_dir = tempfile.gettempdir()
-    temp_path = os.path.join(temp_dir, s3_key.replace("/", "_"))
-
-    if not os.path.exists(temp_path):
-        raise HTTPException(status_code=404, detail="File no longer available locally")
-
-    return FileResponse(temp_path)
+    s3_repo = S3Repository(settings.S3_UPLOAD_BUCKET)
+    signed_url = s3_repo.get_signed_url(s3_key)
+    
+    return RedirectResponse(url=signed_url)
 
 
 @router.get("/")

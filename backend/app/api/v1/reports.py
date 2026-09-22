@@ -65,10 +65,11 @@ async def generate_report_background(
         # 3. Assemble PDF
         pdf_bytes = generate_pdf(report_text, company_name)
 
-        # 4. Save locally instead of S3 for development
+        # 4. Upload to S3
         s3_key = f"reports/{company_id}/{report_id}.pdf"
         import tempfile
         import os
+        from app.repositories.s3_repo import S3Repository
         
         temp_dir = tempfile.gettempdir()
         temp_path = os.path.join(temp_dir, s3_key.replace("/", "_"))
@@ -76,8 +77,13 @@ async def generate_report_background(
         with open(temp_path, "wb") as f:
             f.write(pdf_bytes)
 
-        # Create a local endpoint to serve the PDF
-        pdf_url = f"http://localhost:8000/api/v1/reports/{report_id}/file"
+        # Upload to S3
+        s3_repo = S3Repository(settings.S3_UPLOAD_BUCKET)
+        with open(temp_path, "rb") as f:
+            s3_repo.upload_file(f, s3_key, content_type="application/pdf")
+
+        # Create a proxy endpoint to serve the PDF
+        pdf_url = f"{settings.NEXT_PUBLIC_API_BASE_URL if hasattr(settings, 'NEXT_PUBLIC_API_BASE_URL') else 'http://localhost:8000'}/api/v1/reports/{report_id}/file"
 
 
         reports_repo.put_item(
@@ -182,9 +188,8 @@ def get_report_file(
     report_id: str,
     repo: DynamoRepository = Depends(get_reports_repo),
 ):
-    from fastapi.responses import FileResponse
-    import os
-    import tempfile
+    from fastapi.responses import RedirectResponse
+    from app.repositories.s3_repo import S3Repository
     
     company_id = "mock_company"
     item = repo.get_item({"company_id": company_id, "report_id": report_id})
@@ -192,10 +197,8 @@ def get_report_file(
         raise HTTPException(status_code=404, detail="Report not found")
         
     s3_key = f"reports/{company_id}/{report_id}.pdf"
-    temp_dir = tempfile.gettempdir()
-    temp_path = os.path.join(temp_dir, s3_key.replace("/", "_"))
+    
+    s3_repo = S3Repository(settings.S3_UPLOAD_BUCKET)
+    signed_url = s3_repo.get_signed_url(s3_key)
 
-    if not os.path.exists(temp_path):
-        raise HTTPException(status_code=404, detail="File no longer available locally")
-
-    return FileResponse(temp_path, media_type="application/pdf", filename=f"report_{report_id}.pdf")
+    return RedirectResponse(url=signed_url)
