@@ -29,7 +29,7 @@ EXPOSE 8000
 
 # Use gunicorn with uvicorn workers as specified in TECH_STACK.md §11
 CMD ["gunicorn", "-k", "uvicorn.workers.UvicornWorker", \
-     "--workers", "2", \
+     "--workers", "1", \
      "--bind", "0.0.0.0:8000", \
      "--timeout", "120", \
      "--access-logfile", "-", \
