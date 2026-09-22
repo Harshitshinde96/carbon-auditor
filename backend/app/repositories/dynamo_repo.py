@@ -4,12 +4,15 @@ import boto3
 from typing import Dict, Any, List, Optional
 
 
+from app.core.config import settings
+
 class DynamoRepository:
-    def __init__(self, table_name: str, region_name: str = "us-east-1"):
+    def __init__(self, table_name: str, region_name: str = None):
         self.table_name = table_name
+        region = region_name or settings.AWS_REGION
         # Respect AWS_ENDPOINT_URL for local DynamoDB (docker on port 8001)
         endpoint_url = os.environ.get("AWS_ENDPOINT_URL")
-        kwargs: Dict[str, Any] = {"region_name": region_name}
+        kwargs: Dict[str, Any] = {"region_name": region}
         if endpoint_url:
             kwargs["endpoint_url"] = endpoint_url
         self.dynamodb = boto3.resource("dynamodb", **kwargs)
