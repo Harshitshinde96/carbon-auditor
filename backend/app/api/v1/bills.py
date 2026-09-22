@@ -57,8 +57,11 @@ async def upload_bill(
     with open(temp_path, "wb") as f:
         f.write(content)
 
-    # In a real app we upload to S3 here
-    # s3_client.put_object(Bucket=settings.S3_UPLOAD_BUCKET, Key=s3_key, Body=content)
+    # Upload to S3
+    from app.repositories.s3_repo import S3Repository
+    s3_repo = S3Repository(settings.S3_UPLOAD_BUCKET)
+    import io
+    s3_repo.upload_file(io.BytesIO(content), s3_key, content_type=bill_file.content_type or "application/pdf")
 
     repo = get_db()
     repo.put_item(
@@ -98,7 +101,7 @@ def get_bill(bill_id: str) -> Dict[str, Any]:
 
 @router.get("/{bill_id}/file")
 def get_bill_file(bill_id: str):
-    from fastapi.responses import RedirectResponse
+    from fastapi import Response
     from app.repositories.s3_repo import S3Repository
     repo = get_db()
     item = repo.get_item({"company_id": "mock_company", "bill_id": bill_id})
@@ -107,9 +110,31 @@ def get_bill_file(bill_id: str):
 
     s3_key = item["s3_key"]
     s3_repo = S3Repository(settings.S3_UPLOAD_BUCKET)
-    signed_url = s3_repo.get_signed_url(s3_key)
     
-    return RedirectResponse(url=signed_url)
+    # Try downloading from S3 first; fallback to local temp file if S3 download fails
+    try:
+        file_bytes = s3_repo.download_file(s3_key)
+    except Exception:
+        temp_dir = tempfile.gettempdir()
+        temp_path = os.path.join(temp_dir, s3_key.replace("/", "_"))
+        if os.path.exists(temp_path):
+            with open(temp_path, "rb") as f:
+                file_bytes = f.read()
+        else:
+            raise HTTPException(status_code=404, detail="File not found")
+
+    filename = item.get("filename", "document.pdf")
+    media_type = "application/pdf"
+    if filename.lower().endswith(".png"):
+        media_type = "image/png"
+    elif filename.lower().endswith((".jpg", ".jpeg")):
+        media_type = "image/jpeg"
+
+    return Response(
+        content=file_bytes,
+        media_type=media_type,
+        headers={"Content-Disposition": f'inline; filename="{filename}"'}
+    )
 
 
 @router.get("/")

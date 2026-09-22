@@ -188,7 +188,7 @@ def get_report_file(
     report_id: str,
     repo: DynamoRepository = Depends(get_reports_repo),
 ):
-    from fastapi.responses import RedirectResponse
+    from fastapi import Response
     from app.repositories.s3_repo import S3Repository
     
     company_id = "mock_company"
@@ -197,8 +197,23 @@ def get_report_file(
         raise HTTPException(status_code=404, detail="Report not found")
         
     s3_key = f"reports/{company_id}/{report_id}.pdf"
-    
     s3_repo = S3Repository(settings.S3_UPLOAD_BUCKET)
-    signed_url = s3_repo.get_signed_url(s3_key)
+    
+    try:
+        pdf_bytes = s3_repo.download_file(s3_key)
+    except Exception:
+        import tempfile
+        import os
+        temp_dir = tempfile.gettempdir()
+        temp_path = os.path.join(temp_dir, s3_key.replace("/", "_"))
+        if os.path.exists(temp_path):
+            with open(temp_path, "rb") as f:
+                pdf_bytes = f.read()
+        else:
+            raise HTTPException(status_code=404, detail="Report file not found")
 
-    return RedirectResponse(url=signed_url)
+    return Response(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'inline; filename="report_{report_id}.pdf"'}
+    )
