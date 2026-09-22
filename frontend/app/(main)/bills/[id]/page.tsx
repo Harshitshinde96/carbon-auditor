@@ -108,12 +108,12 @@ export default function BillDetailsPage() {
                 <Loader2 className="w-8 h-8 animate-spin mb-4" />
                 <p>Processing document...</p>
               </div>
-            ) : bill?.s3_key ? (
-              <iframe 
-                src={`/api/v1/bills/${billId}/file`} 
-                className="w-full h-full rounded-md" 
-                title="Document Preview" 
-              />
+              ) : bill?.s3_key ? (
+                <iframe 
+                  src={`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000'}/api/v1/bills/${billId}/file`} 
+                  className="w-full h-full rounded-md" 
+                  title="Document Preview" 
+                />
             ) : (
               <p>Document preview available here</p>
             )}
