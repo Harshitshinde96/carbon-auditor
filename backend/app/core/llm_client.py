@@ -10,11 +10,17 @@ from app.core.config import settings
 
 logger = logging.getLogger(__name__)
 
-# List of models ordered by fallback preference. Removed slow ones to speed up generation.
+# List of models ordered by fallback preference
 FREE_MODELS = [
+    "nvidia/nemotron-3-ultra-550b-a55b:free",
     "nvidia/nemotron-3.5-lightning:free",
+    "nvidia/nemotron-3-super-120b-a12b:free",
+    "poolside/laguna-s-2.1:free",
+    "thinkingmachines/inkling:free",
+    "thinkingmachines/inkling-small:free",
     "google/gemini-1.5-flash:free",
     "meta-llama/llama-3.1-8b-instruct:free",
+    "mistralai/mistral-7b-instruct:free",
 ]
 
 class OpenRouterClient:
@@ -22,7 +28,7 @@ class OpenRouterClient:
         self.client = AsyncOpenAI(
             base_url="https://openrouter.ai/api/v1",
             api_key=settings.OPENROUTER_API_KEY,
-            timeout=8.0,
+            timeout=15.0,
         )
 
     async def generate_content(
