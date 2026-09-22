@@ -10,17 +10,16 @@ from app.core.config import settings
 
 logger = logging.getLogger(__name__)
 
-# List of models ordered by fallback preference
+# List of verified active & valid free models on OpenRouter (including rate-limited fallbacks)
 FREE_MODELS = [
     "nvidia/nemotron-3-ultra-550b-a55b:free",
-    "nvidia/nemotron-3.5-lightning:free",
     "nvidia/nemotron-3-super-120b-a12b:free",
+    "google/gemma-4-26b-a4b-it:free",
     "poolside/laguna-s-2.1:free",
-    "thinkingmachines/inkling:free",
-    "thinkingmachines/inkling-small:free",
-    "google/gemini-1.5-flash:free",
-    "meta-llama/llama-3.1-8b-instruct:free",
-    "mistralai/mistral-7b-instruct:free",
+    "google/gemma-4-31b-it:free",
+    "qwen/qwen3.8-27b:free",
+    "z-ai/glm-5.2:free",
+    "nvidia/nemotron-3.5-lightning:free",
 ]
 
 class OpenRouterClient:
