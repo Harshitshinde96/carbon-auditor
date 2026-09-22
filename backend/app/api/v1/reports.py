@@ -39,53 +39,61 @@ async def generate_report_background(
     try:
         from boto3.dynamodb.conditions import Key
 
-        # 1. Fetch emissions data
-        # Query base table carbon-emissions by company_id and emission_date between period_start and period_end
-        items, _ = emissions_repo.query(
+        # 1. Fetch emissions data for the period
+        emissions_items, _ = emissions_repo.query(
             key_condition_expression=Key("company_id").eq(company_id)
             & Key("emission_date").between(period_start, f"{period_end}z")
         )
 
-        if not items:
+        if not emissions_items:
             reports_repo.put_item(
                 {
                     "company_id": company_id,
                     "report_id": report_id,
                     "status": "FAILED",
-                    "error_message": "No emissions data found for range",
+                    "error_message": "No emissions data found for the selected date range.",
                 }
             )
             return
 
-        # 2. Generate report text with Gemini
+        # 2. Fetch bill records for the appendix traceability table (§16.10)
+        bills_repo = DynamoRepository(settings.DYNAMO_TABLE_BILLS)
+        all_bills, _ = bills_repo.query(
+            key_condition_expression=Key("company_id").eq(company_id)
+        )
+        # Filter to COMPLETED bills only
+        bills_items = [b for b in all_bills if b.get("status") == "COMPLETED"]
+
+        # 3. Generate report content (deterministic sections + LLM narrative)
         report_text = await generate_report_content(
-            company_name, period_start, period_end, items
+            company_name, period_start, period_end, emissions_items, bills_items
         )
 
-        # 3. Assemble PDF
+        # 4. Assemble PDF
         pdf_bytes = generate_pdf(report_text, company_name)
 
-        # 4. Upload to S3
+        # 5. Upload to S3
         s3_key = f"reports/{company_id}/{report_id}.pdf"
         import tempfile
         import os
         from app.repositories.s3_repo import S3Repository
-        
+
         temp_dir = tempfile.gettempdir()
         temp_path = os.path.join(temp_dir, s3_key.replace("/", "_"))
-        
+
         with open(temp_path, "wb") as f:
             f.write(pdf_bytes)
 
-        # Upload to S3
         s3_repo = S3Repository(settings.S3_UPLOAD_BUCKET)
         with open(temp_path, "rb") as f:
             s3_repo.upload_file(f, s3_key, content_type="application/pdf")
 
-        # Create a proxy endpoint to serve the PDF
-        pdf_url = f"{settings.NEXT_PUBLIC_API_BASE_URL if hasattr(settings, 'NEXT_PUBLIC_API_BASE_URL') else 'http://localhost:8000'}/api/v1/reports/{report_id}/file"
+        # Clean up temp file
+        if os.path.exists(temp_path):
+            os.remove(temp_path)
 
-
+        # 6. Update report status
+        pdf_url = f"/api/v1/reports/{report_id}/file"
         reports_repo.put_item(
             {
                 "company_id": company_id,
@@ -160,7 +168,7 @@ async def generate_report(
         generate_report_background,
         report_id,
         company_id,
-        "User Company",  # Placeholder, maybe fetch from user profile
+        "Carbon Auditor User",  # Default until auth provides real company name
         req.period_start,
         req.period_end,
         repo,
