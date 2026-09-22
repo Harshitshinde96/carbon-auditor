@@ -5,6 +5,8 @@ from markitdown import MarkItDown
 
 from app.core.exceptions import OCRProcessingError
 from app.core.llm_client import OpenRouterClient
+from app.core.config import settings
+from app.repositories.dynamo_repo import DynamoRepository
 
 logger = logging.getLogger(__name__)
 
