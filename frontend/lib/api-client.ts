@@ -21,7 +21,8 @@ export async function apiClient(endpoint: string, options: RequestInit = {}) {
     headers.set('Content-Type', 'application/json');
   }
 
-  const url = `http://localhost:8000/api/v1${endpoint}`; // Bypass Next.js proxy to avoid 30s timeout on slow LLM calls
+  const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
+  const url = `${baseUrl}/api/v1${endpoint}`; // Bypass Next.js proxy to avoid 30s timeout on slow LLM calls
 
   try {
     const res = await fetch(url, {
