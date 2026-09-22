@@ -15,21 +15,24 @@ def calculate_emissions(utility_type: str, consumption: float, unit: str) -> flo
 
     utility_type_lower = utility_type.strip().lower()
 
-    # Define exact supported units and emission factors per PRD §13
+    # Define exact supported units and emission factors per PRD A 13
     if utility_type_lower == "electricity":
-        if unit.strip().lower() != "kwh":
+        unit_normalized = unit.strip().lower().replace(" ", "").replace("-", "")
+        if unit_normalized not in ["kwh", "kw", "kilowatthour", "kilowatthours"]:
             raise UnitMismatchError(f"Expected kWh for Electricity, got {unit}")
         # 0.385 kg CO2e / kWh
         emissions = consumption * 0.385
 
     elif utility_type_lower == "natural gas":
-        if unit.strip().lower() != "therms":
+        unit_normalized = unit.strip().lower()
+        if unit_normalized not in ["therms", "therm", "th", "thrm"]:
             raise UnitMismatchError(f"Expected Therms for Natural Gas, got {unit}")
         # 5.3 kg CO2e / Therm
         emissions = consumption * 5.3
 
     elif utility_type_lower == "water":
-        if unit.strip().lower() != "gallons":
+        unit_normalized = unit.strip().lower()
+        if unit_normalized not in ["gallons", "gallon", "gal"]:
             raise UnitMismatchError(f"Expected Gallons for Water, got {unit}")
         # 0.344 kg CO2e / 1000 Gallons
         emissions = (consumption / 1000.0) * 0.344
