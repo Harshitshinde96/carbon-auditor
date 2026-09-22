@@ -1,0 +1,5 @@
+{
+  "success": true,
+  "answer": "Based on your billing history, your highest carbon emission occurred in August at 450 kgCO2e, which correlated with your highest electricity cost of $1,350. To reduce this, I recommend setting your AC to 74°F during peak summer hours and ensuring all window seals are intact.",
+  "chatId": "mock-chat-12345"
+}

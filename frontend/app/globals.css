@@ -1,0 +1,29 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --ink: 10 10 10;
+    --ink-secondary: 115 115 115;
+    --muted: 163 163 163;
+    --background: 242 242 242;
+    --surface: 255 255 255;
+    --surface-inverse: 10 10 10;
+    --surface-muted: 250 250 250;
+    --border: 229 229 229;
+    --border-strong: 10 10 10;
+    --accent: 237 91 70;
+    --accent-hover: 214 74 53;
+    --accent-light: 254 236 233;
+    --chart-1: 237 91 70;
+    --chart-2: 246 147 130;
+    --chart-3: 249 189 179;
+    --chart-4: 252 228 224;
+  }
+  
+  body {
+    background-color: rgb(var(--background));
+    color: rgb(var(--ink));
+  }
+}

@@ -1,0 +1,1 @@
+import httpx, time, subprocess, sys; `nfor _ in range(60):`n  try:`n    if httpx.get("http://localhost:8000/docs").status_code == 200: break`n  except: time.sleep(5)`nelse: sys.exit(1)`nsubprocess.run(["python", "scripts/create_tables.py"], check=True)`nsubprocess.run(["python", "tests/smoke/smoke_test.py"], check=True)

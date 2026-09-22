@@ -1,0 +1,25 @@
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+htmlcov/
+.coverage
+.coverage.*
+
+# Node
+node_modules/
+.next/
+dist/
+.turbo/
+
+# Environment variables
+*.env
+.env.local
+.env.*.local
+
+# OS
+.DS_Store
+Thumbs.db

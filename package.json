@@ -1,0 +1,13 @@
+{
+  "name": "carbon-auditor",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev:frontend": "pnpm --filter frontend dev",
+    "build:frontend": "pnpm --filter frontend build",
+    "lint:frontend": "pnpm --filter frontend lint",
+    "test:frontend": "pnpm --filter frontend test",
+    "test:e2e:frontend": "pnpm --filter frontend test:e2e",
+    "format:frontend": "pnpm --filter frontend format"
+  }
+}

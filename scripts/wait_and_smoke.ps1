@@ -1,0 +1,1 @@
+while (!(Test-Connection -ComputerName localhost -Port 8000 -Count 1 -Quiet)) { Start-Sleep -Seconds 2 }`n.venv\Scripts\python.exe scripts/create_tables.py`n.venv\Scripts\python.exe tests/smoke/smoke_test.py

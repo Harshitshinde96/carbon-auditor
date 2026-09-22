@@ -1,0 +1,42 @@
+services:
+  - type: web
+    name: carbon-auditor-backend
+    env: docker
+    region: ohio
+    plan: free
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    healthCheckPath: /health
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: AWS_REGION
+        value: ap-south-1
+      - key: JWT_SECRET
+        sync: false
+      - key: JWT_ALGORITHM
+        value: HS256
+      - key: ACCESS_TOKEN_EXPIRE_MINUTES
+        value: 60
+      - key: OPENROUTER_API_KEY
+        sync: false
+      - key: QDRANT_API_KEY
+        sync: false
+      - key: QDRANT_URL
+        sync: false
+      - key: S3_UPLOAD_BUCKET
+        value: carbon-auditor-uploads-prod
+      - key: DYNAMO_TABLE_USERS
+        value: carbon-users
+      - key: DYNAMO_TABLE_BILLS
+        value: carbon-bills
+      - key: DYNAMO_TABLE_EMISSIONS
+        value: carbon-emissions
+      - key: DYNAMO_TABLE_SETTINGS
+        value: carbon-settings
+      - key: DYNAMO_TABLE_REPORTS
+        value: carbon-reports
+      - key: AWS_ACCESS_KEY_ID
+        sync: false
+      - key: AWS_SECRET_ACCESS_KEY
+        sync: false

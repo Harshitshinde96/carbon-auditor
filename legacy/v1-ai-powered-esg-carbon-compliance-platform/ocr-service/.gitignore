@@ -1,0 +1,12 @@
+venv/
+.env
+__pycache__/
+*.pyc
+logs/
+.idea/
+.vscode/
+.DS_Store/
+sample_files/*
+!sample_files/.gitkeep
+temp/
+invoice.pdf

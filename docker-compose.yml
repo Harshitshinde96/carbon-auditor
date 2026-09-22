@@ -1,0 +1,98 @@
+version: '3.8'
+
+networks:
+  app-network:
+    driver: bridge
+
+services:
+  # ── DynamoDB Local ─────────────────────────────────────────────────────────
+  dynamodb-local:
+    image: amazon/dynamodb-local:latest
+    container_name: carbon-dynamodb-local
+    networks:
+      - app-network
+    ports:
+      - "8001:8000"  # Exposed on 8001 so it doesn't clash with backend on host
+    command: "-jar DynamoDBLocal.jar -sharedDb -inMemory"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s http://localhost:8000/ | grep -qi 'dynamodb' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  # ── DynamoDB Table Init (runs once, then exits) ────────────────────────────
+  dynamodb-init:
+    image: python:3.12-slim
+    container_name: carbon-dynamodb-init
+    networks:
+      - app-network
+    depends_on:
+      dynamodb-local:
+        condition: service_healthy
+    environment:
+      - AWS_ENDPOINT_URL=http://dynamodb-local:8000
+      - AWS_REGION=us-east-1
+      - AWS_ACCESS_KEY_ID=local
+      - AWS_SECRET_ACCESS_KEY=local
+    volumes:
+      - ./scripts:/scripts
+      - ./backend/requirements.txt:/tmp/requirements.txt
+    command: >
+      bash -c "pip install -q boto3 && python /scripts/create_tables.py"
+    restart: "no"
+
+  # ── Backend (FastAPI) ──────────────────────────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: carbon-backend
+    networks:
+      - app-network
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./backend/.env
+    environment:
+      - ENVIRONMENT=development
+      # Backend connects to DynamoDB Local via internal Docker network
+      - AWS_ENDPOINT_URL=http://dynamodb-local:8000
+    depends_on:
+      dynamodb-init:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+
+  # ── Frontend (Next.js) ─────────────────────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        # In Docker, frontend → backend go through internal network by service name.
+        # The Next.js rewrite() uses this at BUILD TIME for standalone output.
+        NEXT_PUBLIC_API_URL: http://backend:8000
+    container_name: carbon-frontend
+    networks:
+      - app-network
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_URL=http://backend:8000
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3000/ || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped

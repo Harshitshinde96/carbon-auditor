@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Carbon Auditor</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800;900&amp;family=Public+Sans:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "secondary-fixed": "#c6c6c6",
+                    "on-surface": "#1b1b1b",
+                    "on-surface-variant": "#474747",
+                    "on-secondary": "#ffffff",
+                    "outline-variant": "#c6c6c6",
+                    "tertiary-fixed-dim": "#474747",
+                    "tertiary": "#3b3b3b",
+                    "on-tertiary-fixed-variant": "#e2e2e2",
+                    "surface-bright": "#f9f9f9",
+                    "on-secondary-fixed": "#1b1b1b",
+                    "inverse-primary": "#c6c6c6",
+                    "surface-variant": "#e2e2e2",
+                    "on-secondary-fixed-variant": "#3b3b3b",
+                    "inverse-surface": "#303030",
+                    "secondary-container": "#d4d4d4",
+                    "on-primary": "#e2e2e2",
+                    "surface-container-high": "#e8e8e8",
+                    "on-secondary-container": "#1b1b1b",
+                    "outline": "#777777",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-container-low": "#f3f3f3",
+                    "primary-container": "#3b3b3b",
+                    "surface-container-highest": "#e2e2e2",
+                    "on-primary-container": "#ffffff",
+                    "background": "#f9f9f9",
+                    "on-tertiary-fixed": "#ffffff",
+                    "secondary": "#5e5e5e",
+                    "surface-container": "#eeeeee",
+                    "on-tertiary": "#e2e2e2",
+                    "tertiary-container": "#747474",
+                    "secondary-fixed-dim": "#ababab",
+                    "primary-fixed-dim": "#474747",
+                    "inverse-on-surface": "#f1f1f1",
+                    "tertiary-fixed": "#5e5e5e",
+                    "primary-fixed": "#5e5e5e",
+                    "on-error-container": "#410002",
+                    "surface-dim": "#dadada",
+                    "on-primary-fixed-variant": "#e2e2e2",
+                    "surface": "#f9f9f9",
+                    "on-primary-fixed": "#ffffff",
+                    "error": "#ba1a1a",
+                    "error-container": "#ffdad6",
+                    "primary": "#000000",
+                    "on-tertiary-container": "#ffffff",
+                    "on-error": "#ffffff",
+                    "surface-tint": "#5e5e5e",
+                    "on-background": "#1b1b1b"
+            },
+            "fontFamily": {
+                    "headline": ["Inter"],
+                    "display": ["Inter"],
+                    "body": ["Inter"],
+                    "label": ["Public Sans"]
+            }
+          }
+        }
+      }
+</script>
+<style>
+    .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; vertical-align: middle; }
+    body { font-family: 'Inter', sans-serif; min-height: max(884px, 100dvh); }
+    .font-label { font-family: 'Public Sans', sans-serif; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    .sidebar-transition { transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+</style>
+</head>
+<body class="bg-background text-on-background overflow-hidden h-screen flex flex-col">
+<!-- TopAppBar -->
+<header class="bg-surface-container-lowest dark:bg-on-surface text-primary dark:text-on-primary-fixed w-full top-0 sticky border-b border-outline-variant dark:border-on-surface-variant z-40 flex justify-between items-center px-4 py-2 h-12">
+<div class="flex items-center gap-3">
+<button class="md:hidden p-1 cursor-pointer active:opacity-80" onclick="toggleSidebar()"><span class="material-symbols-outlined">menu</span></button>
+<span class="text-sm font-black tracking-tighter text-primary dark:text-on-primary-fixed">Carbon Auditor</span>
+</div>
+<div class="flex-1 max-w-md mx-8 hidden sm:flex">
+<div class="relative w-full">
+<span class="material-symbols-outlined absolute left-2 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">search</span>
+<input class="w-full bg-surface-container text-xs border-none rounded py-1 pl-8 focus:ring-1 focus:ring-primary" placeholder="Search data..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-on-surface-variant text-lg cursor-pointer hover:bg-surface-container transition-colors rounded p-1">notifications</span>
+<div class="w-8 h-8 rounded-full bg-surface-container-highest overflow-hidden cursor-pointer border border-outline-variant active:opacity-80">
+<img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDV565wwZQV7W4tOPlTdlJyaXXkQ4Df7bo8E4kUV_mHCTz_BcoxpFKwqzvhRSXceLwYKrRI6JJrGmTja0nRzscl4Qd3jUpeI_BXbqdgqHRMyjpT9LnIxeDxfxFm2QV7tg9sXs8nGClNHdyz5jAzrdRwlDx_Y6kQ7LFx0hkO2SBo0g9GdkNnCxpyviszm0IltG0ZhB8tNg7kQtVKQyU1V5lQusCH9_3ujsqz3sujalcNYbMf06m3O-VBfTFkE4h4hxOYmQFQLSAfSys"/>
+</div>
+</div>
+</header>
+<div class="flex flex-1 overflow-hidden relative">
+<aside class="bg-surface-container-low dark:bg-on-surface h-full w-64 fixed left-0 top-0 md:relative md:translate-x-0 -translate-x-full sidebar-transition z-50 border-r border-outline-variant dark:border-on-surface-variant flex flex-col gap-1 p-4 h-screen" id="sidebar">
+<div class="flex items-center justify-between mb-6 px-2">
+<span class="font-label text-xs uppercase font-medium text-primary dark:text-on-primary-fixed">MENU</span>
+<button class="md:hidden" onclick="toggleSidebar()"><span class="material-symbols-outlined text-sm">close</span></button>
+</div>
+<nav class="flex flex-col gap-1"><a class="text-on-surface-variant hover:bg-surface-variant rounded-lg flex items-center gap-3 px-3 py-2 cursor-pointer select-none transition-transform duration-200 hover:translate-x-1" href="dashboard.html"><span class="material-symbols-outlined text-sm">dashboard</span><span class="font-label text-xs uppercase font-medium">Dashboard</span></a>
+<a class="text-on-surface-variant hover:bg-surface-variant rounded-lg flex items-center gap-3 px-3 py-2 cursor-pointer select-none transition-transform duration-200 hover:translate-x-1" href="upload.html"><span class="material-symbols-outlined text-sm">cloud_upload</span><span class="font-label text-xs uppercase font-medium">Upload Bills</span></a>
+<a class="text-on-surface-variant hover:bg-surface-variant rounded-lg flex items-center gap-3 px-3 py-2 cursor-pointer select-none transition-transform duration-200 hover:translate-x-1" href="reports.html"><span class="material-symbols-outlined text-sm">description</span><span class="font-label text-xs uppercase font-medium">Reports</span></a>
+<a class="text-on-surface-variant hover:bg-surface-variant rounded-lg flex items-center gap-3 px-3 py-2 cursor-pointer select-none transition-transform duration-200 hover:translate-x-1" href="chat.html"><span class="material-symbols-outlined text-sm">smart_toy</span><span class="font-label text-xs uppercase font-medium">AI Chat</span></a>
+<div class="mt-auto flex flex-col gap-1"><a class="text-on-surface-variant hover:bg-surface-variant rounded-lg flex items-center gap-3 px-3 py-2 cursor-pointer select-none transition-transform duration-200 hover:translate-x-1" href="settings.html"><span class="material-symbols-outlined text-sm">settings</span><span class="font-label text-xs uppercase font-medium">Settings</span></a>
+<a class="bg-primary text-on-primary rounded-lg font-bold flex items-center gap-3 px-3 py-2 cursor-pointer select-none transition-transform duration-200" href="profile.html"><span class="material-symbols-outlined text-sm">account_circle</span><span class="font-label text-xs uppercase font-medium">Profile</span></a>
+</div></nav></aside>
+<main class="flex-1 overflow-y-auto no-scrollbar bg-background p-4 md:p-6 lg:p-8 pb-24 md:pb-24 lg:pb-24">
+<div class="max-w-4xl mx-auto space-y-6">
+    <section class="bg-surface-container-lowest border border-outline-variant p-6 flex items-center gap-6">
+        <div class="w-24 h-24 rounded-full overflow-hidden border border-outline-variant">
+            <img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDV565wwZQV7W4tOPlTdlJyaXXkQ4Df7bo8E4kUV_mHCTz_BcoxpFKwqzvhRSXceLwYKrRI6JJrGmTja0nRzscl4Qd3jUpeI_BXbqdgqHRMyjpT9LnIxeDxfxFm2QV7tg9sXs8nGClNHdyz5jAzrdRwlDx_Y6kQ7LFx0hkO2SBo0g9GdkNnCxpyviszm0IltG0ZhB8tNg7kQtVKQyU1V5lQusCH9_3ujsqz3sujalcNYbMf06m3O-VBfTFkE4h4hxOYmQFQLSAfSys"/>
+        </div>
+        <div>
+            <h2 class="text-xl font-black tracking-tighter">Jane Doe</h2>
+            <p class="text-xs text-on-surface-variant font-medium mb-2">Chief Sustainability Officer</p>
+            <span class="inline-block px-2 py-0.5 bg-black text-white text-[9px] font-black uppercase rounded tracking-tighter">Admin Access</span>
+        </div>
+    </section>
+</div>
+
+</main>
+</div>
+<script src="assets/js/icons.js"></script>
+<script src="assets/js/utils.js"></script>
+
+
+<script>
+    function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        if (sidebar.classList.contains('-translate-x-full')) {
+            sidebar.classList.remove('-translate-x-full');
+        } else {
+            sidebar.classList.add('-translate-x-full');
+        }
+    }
+</script>
+
+<!-- Global Processing Status Bar -->
+<div class="fixed bottom-0 left-0 md:left-64 right-0 bg-surface-container-highest border-t border-outline-variant p-4 z-[100] shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+    <div class="max-w-6xl mx-auto flex items-center justify-between gap-4">
+        <div class="flex flex-col flex-1 gap-1">
+            <div class="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-on-surface-variant">
+                <span>System Processing Status</span>
+                <span id="global-status-text">Idle</span>
+            </div>
+            <div class="w-full bg-surface-container-lowest border border-outline-variant h-1.5 rounded overflow-hidden">
+                <div id="global-progress-bar" class="bg-primary h-full transition-all duration-300" style="width: 0%"></div>
+            </div>
+        </div>
+        <button class="text-[10px] font-black uppercase border border-outline-variant px-3 py-1.5 hover:bg-surface-container-lowest transition-colors rounded bg-background">View Logs</button>
+    </div>
+</div>
+</body></html>
