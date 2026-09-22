@@ -3,12 +3,13 @@ from typing import BinaryIO
 
 
 from app.core.config import settings
+from botocore.config import Config
 
 class S3Repository:
     def __init__(self, bucket_name: str, region_name: str = None):
         self.bucket_name = bucket_name
         region = region_name or settings.AWS_REGION
-        self.s3_client = boto3.client("s3", region_name=region)
+        self.s3_client = boto3.client("s3", region_name=region, config=Config(signature_version="s3v4"))
 
     def upload_file(
         self,
