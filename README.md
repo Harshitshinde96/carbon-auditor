@@ -65,31 +65,40 @@ Here is a high-level overview of how Carbon Auditor processes your data:
 
 ```mermaid
 flowchart TD
-    A[User] -->|Uploads PDF/Image Bill| B(Next.js Frontend)
-    B -->|API Request| C{FastAPI Backend}
+    %% Node Styling
+    classDef user fill:#4f46e5,stroke:#312e81,stroke-width:2px,color:#fff
+    classDef frontend fill:#f59e0b,stroke:#78350f,stroke-width:2px,color:#fff
+    classDef backend fill:#10b981,stroke:#064e3b,stroke-width:2px,color:#fff
+    classDef ai fill:#ec4899,stroke:#831843,stroke-width:2px,color:#fff
+    classDef db fill:#8b5cf6,stroke:#4c1d95,stroke-width:2px,color:#fff
+    classDef logic fill:#0ea5e9,stroke:#0c4a6e,stroke-width:2px,color:#fff
+    classDef storage fill:#64748b,stroke:#334155,stroke-width:2px,color:#fff
+
+    A[User]:::user -->|Uploads PDF/Image Bill| B(Next.js Frontend):::frontend
+    B -->|API Request| C{FastAPI Backend}:::backend
     
     subgraph AI Extraction Pipeline
-        C --> D[PaddleOCR]
-        D -->|Raw Text| E[Google Gemini Flash]
-        E -->|Structured Data| F[(DynamoDB)]
+        C --> D[PaddleOCR]:::ai
+        D -->|Raw Text| E[Google Gemini Flash]:::ai
+        E -->|Structured Data| F[(DynamoDB)]:::db
     end
 
     subgraph Calculation Engine
-        F --> G[GHG Protocol Formulas]
-        G --> H[Deterministic CO2e Output]
+        F --> G[GHG Protocol Formulas]:::logic
+        G --> H[Deterministic CO2e Output]:::logic
         H --> F
     end
 
     subgraph RAG Assistant
-        I[GHG Protocol Guidelines] --> J[FastEmbed]
-        J --> K[(Qdrant Vector DB)]
-        C -->|User Chat| L[Semantic Search]
+        I[GHG Protocol Guidelines]:::storage --> J[FastEmbed]:::ai
+        J --> K[(Qdrant Vector DB)]:::db
+        C -->|User Chat| L[Semantic Search]:::logic
         L --> K
-        K -->|Context| M[Google Gemini]
+        K -->|Context| M[Google Gemini]:::ai
         M -->|Response| C
     end
 
-    C -->|Persists Document| N[(Amazon S3)]
+    C -->|Persists Document| N[(Amazon S3)]:::storage
     F -->|Analytics & Reports| B
 ```
 
